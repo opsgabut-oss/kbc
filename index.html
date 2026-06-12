@@ -9,11 +9,13 @@
 <body class="bg-gray-100 text-gray-800 font-sans print:bg-white print:p-0">
 
     <div class="max-w-4xl mx-auto my-10 p-8 bg-white rounded-xl shadow-lg print:shadow-none print:my-0 print:p-0">
+        <!-- Header Aplikasi -->
         <div class="text-center border-b pb-4 mb-6 print:hidden">
             <h1 class="text-3xl font-bold text-pink-600">💖 KBC Modul Generator AI</h1>
             <p class="text-gray-500 mt-1">Sistem Otomatis Pembuat Modul Ajar Kurikulum Merdeka Berbasis Cinta (Fase A-F)</p>
         </div>
 
+        <!-- FORM INPUT ADMINISTRASI & PANEL UTAMA GENERATOR (4 LANGKAH KLIK) -->
         <div class="print:hidden">
             <h3 class="text-lg font-bold text-gray-700 mb-3 border-l-4 border-pink-500 pl-2">1. Identitas Administrasi Guru</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -35,53 +37,68 @@
                 </div>
             </div>
 
-            <h3 class="text-lg font-bold text-gray-700 mb-3 border-l-4 border-pink-500 pl-2">2. Pengaturan Materi Kurikulum</h3>
+            <h3 class="text-lg font-bold text-gray-700 mb-3 border-l-4 border-pink-500 pl-2">2. Panel Input Generator Utama (Mesin Pintar AI)</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <!-- Dropdown 1: Jenjang & Kelas -->
                 <div>
-                    <label class="block text-sm font-semibold mb-1">Pilih Jenjang & Kelas:</label>
-                    <select id="kelas" onchange="updateMapelOtomatis()" class="w-full p-2 border rounded-md focus:outline-pink-500">
+                    <label class="block text-sm font-semibold mb-1">Langkah 1: Pilih Jenjang & Kelas:</label>
+                    <select id="kelas" onchange="logikaSistemKurikulum()" class="w-full p-2 border rounded-md focus:outline-pink-500">
                         <option value="">-- Pilih Kelas --</option>
-                        <optgroup label="SD / MI (Pendidikan Dasar)">
-                            <option value="Kelas 1 (Fase A)">Kelas 1 SD/MI</option>
-                            <option value="Kelas 2 (Fase A)">Kelas 2 SD/MI</option>
-                            <option value="Kelas 3 (Fase B)">Kelas 3 SD/MI</option>
-                            <option value="Kelas 4 (Fase B)">Kelas 4 SD/MI</option>
-                            <option value="Kelas 5 (Fase C)">Kelas 5 SD/MI</option>
-                            <option value="Kelas 6 (Fase C)">Kelas 6 SD/MI</option>
+                        <optgroup label="SD / MI (Fase A, B, C)">
+                            <option value="Kelas 1">Kelas 1 SD/MI (Fase A)</option>
+                            <option value="Kelas 2">Kelas 2 SD/MI (Fase A)</option>
+                            <option value="Kelas 3">Kelas 3 SD/MI (Fase B)</option>
+                            <option value="Kelas 4">Kelas 4 SD/MI (Fase B)</option>
+                            <option value="Kelas 5">Kelas 5 SD/MI (Fase C)</option>
+                            <option value="Kelas 6">Kelas 6 SD/MI (Fase C)</option>
                         </optgroup>
-                        <optgroup label="SMP / MTs (Menengah Pertama)">
-                            <option value="Kelas 7 (Fase D)">Kelas 7 SMP/MTs</option>
-                            <option value="Kelas 8 (Fase D)">Kelas 8 SMP/MTs</option>
-                            <option value="Kelas 9 (Fase D)">Kelas 9 SMP/MTs</option>
+                        <optgroup label="SMP / MTs (Fase D)">
+                            <option value="Kelas 7">Kelas 7 SMP/MTs (Fase D)</option>
+                            <option value="Kelas 8">Kelas 8 SMP/MTs (Fase D)</option>
+                            <option value="Kelas 9">Kelas 9 SMP/MTs (Fase D)</option>
                         </optgroup>
-                        <optgroup label="SMA / MA / SMK (Menengah Atas)">
-                            <option value="Kelas 10 (Fase E)">Kelas 10 SMA/MA/SMK</option>
-                            <option value="Kelas 11 (Fase F)">Kelas 11 SMA/MA/SMK</option>
-                            <option value="Kelas 12 (Fase F)">Kelas 12 SMA/MA/SMK</option>
+                        <optgroup label="SMA / MA / SMK (Fase E & F)">
+                            <option value="Kelas 10">Kelas 10 SMA/MA/SMK (Fase E)</option>
+                            <option value="Kelas 11">Kelas 11 SMA/MA/SMK (Fase F)</option>
+                            <option value="Kelas 12">Kelas 12 SMA/MA/SMK (Fase F)</option>
                         </optgroup>
                     </select>
                 </div>
 
+                <!-- Pilihan Instansi (Pemicu Mapel Keagamaan Kemenag) -->
                 <div>
-                    <label class="block text-sm font-semibold mb-1">Mata Pelajaran (Otomatis Berubah):</label>
-                    <select id="mapel" class="w-full p-2 border rounded-md focus:outline-pink-500">
-                        <option value="">-- Pilih Kelas Terlebih Dahulu --</option>
+                    <label class="block text-sm font-semibold mb-1">Jenis Instansi:</label>
+                    <select id="instansi" onchange="logikaSistemKurikulum()" class="w-full p-2 border rounded-md focus:outline-pink-500">
+                        <option value="SEKOLAH">SEKOLAH UMUM (SD/SMP/SMA)</option>
+                        <option value="MADRASAH">MADRASAH (MI/MTs/MA) - KMA 1503/2025</option>
                     </select>
                 </div>
 
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-semibold mb-1">Topik / Bab Buku SIBI:</label>
-                    <input type="text" id="bab" placeholder="Ketik judul bab bebas, contoh: Mengubah Bentuk Energi ATAU Kimia Hijau ATAU Great Athletes" class="w-full p-2 border rounded-md focus:outline-pink-500">
+                <!-- Dropdown 2: Mata Pelajaran -->
+                <div>
+                    <label class="block text-sm font-semibold mb-1">Langkah 2: Mata Pelajaran (Otomatis Mengunci):</label>
+                    <select id="mapel" onchange="koneksiDatabaseSIBI()" class="w-full p-2 border rounded-md focus:outline-pink-500">
+                        <option value="">-- Pilih Kelas & Instansi Terlebih Dahulu --</option>
+                    </select>
                 </div>
 
+                <!-- Dropdown 3: Bab / Materi Esensial -->
+                <div>
+                    <label class="block text-sm font-semibold mb-1">Langkah 3: Bab Resmi Portal SIBI (Otomatis):</label>
+                    <select id="bab" class="w-full p-2 border rounded-md focus:outline-pink-500">
+                        <option value="">-- Pilih Mata Pelajaran Terlebih Dahulu --</option>
+                    </select>
+                </div>
+
+                <!-- Dropdown 4: Pilar Panca Cinta KBC -->
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-semibold mb-1">Dominasi Pilar Panca Cinta KBC:</label>
+                    <label class="block text-sm font-semibold mb-1">Langkah 4: Pilar Panca Cinta KBC (SIKURMA):</label>
                     <select id="pilar" class="w-full p-2 border rounded-md focus:outline-pink-500">
-                        <option value="Hubullah (Cinta Tuhan)">Hubullah (Cinta Tuhan & Rasul)</option>
-                        <option value="Hubunnafsi (Cinta Diri)">Hubunnafsi (Cinta Diri Sendiri)</option>
-                        <option value="Hubunnas (Cinta Sesama)">Hubunnas (Cinta Sesama Manusia)</option>
-                        <option value="Hubulbi'ah (Cinta Alam)">Hubulbi'ah (Cinta Alam Sekitar)</option>
-                        <option value="Hubul Wathan (Cinta Tanah Air)">Hubul Wathan (Cinta Tanah Air & Budaya)</option>
+                        <option value="Hubullah (Cinta Allah & Rasul)">Hubullah (Cinta Allah & Rasul)</option>
+                        <option value="Hubunnafsi (Cinta Diri)">Hubunnafsi (Cinta Diri)</option>
+                        <option value="Hubunnas (Cinta Sesama)">Hubunnas (Cinta Sesama)</option>
+                        <option value="Hubulbi'ah (Cinta Alam)">Hubulbi'ah (Cinta Alam)</option>
+                        <option value="Hubul Wathan (Cinta Tanah Air)">Hubul Wathan (Cinta Tanah Air)</option>
                     </select>
                 </div>
             </div>
@@ -91,10 +108,12 @@
             </button>
         </div>
 
+        <!-- Loading Spinner -->
         <div id="loading" class="hidden text-center my-8 text-pink-600 font-medium animate-pulse print:hidden">
             ⏳ Gemini 2.5 Flash sedang menganalisis materi bab dan memecahnya menjadi beberapa pertemuan... Mohon tunggu...
         </div>
 
+        <!-- OUTPUT SIAP CETAK -->
         <div id="outputContainer" class="hidden mt-4 border-t pt-4 print:border-none print:pt-0">
             <div class="flex justify-between items-center mb-6 print:hidden">
                 <h2 class="text-xl font-bold text-gray-700">📄 Hasil Cetak Modul Ajar KBC:</h2>
@@ -106,45 +125,145 @@
         </div>
     </div>
 
+    <!-- ENGINE UTAMA: LOGIKA KORELASI DATABASE SIBI & SIKURMA -->
     <script>
-        function updateMapelOtomatis() {
-            const kelasSelect = document.getElementById('kelas').value;
+        // Database SIBI Resmi yang ditanam langsung ke dalam sistem aplikasi sesuai rancangan
+        const databaseSIBI = {
+            "Kelas 1": {
+                "Bahasa Indonesia": ["Bab 1: Bunyi Apa?", "Bab 2: Ayo Bermain!", "Bab 3: Awas Kuman!"],
+                "Matematika": ["Bab 1: Bilangan sampai 10", "Bab 2: Penjumlahan", "Bab 3: Pengurangan"],
+                "Al-Qur'an Hadis": ["Bab 1: Huruf Hijaiyah", "Bab 2: Surah Al-Fatihah"]
+            },
+            "Kelas 3": {
+                "IPAS (Ilmu Pengetahuan Alam dan Sosial)": ["Bab 1: Perkembangbiakan Tumbuhan", "Bab 2: Wujud Zat dan Perubahannya", "Bab 3: Tradisi dan Keragaman Budaya (Sosial)"],
+                "Matematika": ["Bab 1: Pecahan Sederhana", "Bab 2: Keliling dan Luas Bangun Datar"]
+            },
+            "Kelas 4": {
+                "IPAS (Ilmu Pengetahuan Alam dan Sosial)": ["Bab 1: Tumbuhan, Sumber Kehidupan", "Bab 2: Wujud Zat dan Perubahannya", "Bab 3: Gaya di Sekitar Kita", "Bab 4: Mengubah Bentuk Energi (Sains)"],
+                "Bahasa Inggris": ["Unit 1: He is My Friend", "Unit 2: My New Words"]
+            },
+            "Kelas 7": {
+                "Ilmu Pengetahuan Alam (IPA)": ["Bab 1: Hakikat Ilmu Sains dan Pengukuran", "Bab 2: Zat dan Perubahannya", "Bab 3: Suhu, Kalor dan Pemuaian"],
+                "Ilmu Pengetahuan Sosial (IPS)": ["Bab 1: Keluarga Awal Kehidupan", "Bab 2: Keberagaman Lingkungan Sekitar"]
+            },
+            "Kelas 10": {
+                "Fisika (Rumpun IPA)": ["Bab 1: Pengukuran dalam Kerja Ilmiah", "Bab 2: Energi Terbarukan", "Bab 3: Pemanasan Global"],
+                "Kimia (Rumpun IPA)": ["Bab 1: Struktur Atom", "Bab 2: Kimia Hijau dalam Pembangunan", "Bab 3: Hukum Dasar Kimia"],
+                "Biologi (Rumpun IPA)": ["Bab 1: Keanekaragaman Hayati", "Bab 2: Virus dan Peranannya", "Bab 3: Ekosistem"],
+                "Sejarah (Rumpun IPS)": ["Bab 1: Pengantar Ilmu Sejarah", "Bab 2: Sejarah Lokal & Nasional"],
+                "Sosiologi (Rumpun IPS)": ["Bab 1: Pengantar Sosiologi", "Bab 2: Fungsi Sosiologi di Masyarakat"],
+                "Ekonomi (Rumpun IPS)": ["Bab 1: Kelangkaan Inti Masalah Ekonomi", "Bab 2: Konsep Pasar dan Lembaga Keuangan"],
+                "Geografi (Rumpun IPS)": ["Bab 1: Pengantar Ilmu Geografi", "Bab 2: Peta dan Biosfer"],
+                "Bahasa Inggris": ["Chapter 1: Great Athletes", "Chapter 2: Sports Events", "Chapter 3: Home Holding", "Chapter 4: Healthy Foods", "Chapter 5: Graffiti", "Chapter 6: Fractured Stories"]
+            },
+            "Kelas 11": {
+                "Fisika Tingkat Lanjut": ["Bab 1: Kinematika", "Bab 2: Termodinamika"],
+                "Usul Fikih": ["Bab 1: Hakikat Usul Fikih", "Bab 2: Sumber Hukum Islam"]
+            }
+        };
+
+        // Mengisi pilihan default jika data kelas belum diinput lengkap ke database internal
+        const defaultBab = ["Bab 1: Pendahuluan Materi Esensial", "Bab 2: Pembahasan Konsep Utama", "Bab 3: Evaluasi dan Refleksi Karakter"];
+
+        function logikaSistemKurikulum() {
+            const kelas = document.getElementById('kelas').value;
+            const instansi = document.getElementById('instansi').value;
             const mapelSelect = document.getElementById('mapel');
             
-            // Kosongkan pilihan lama
-            mapelSelect.innerHTML = "";
+            mapelSelect.innerHTML = '<option value="">-- Pilih Mata Pelajaran --</option>';
+            document.getElementById('bab').innerHTML = '<option value="">-- Pilih Mata Pelajaran Terlebih Dahulu --</option>';
 
-            if (!kelasSelect) {
-                mapelSelect.innerHTML = '<option value="">-- Pilih Kelas Terlebih Dahulu --</option>';
-                return;
+            if (!kelas) return;
+
+            let mapelDasar = ["Pendidikan Pancasila", "Bahasa Indonesia", "Matematika", "Bahasa Inggris", "Muatan Lokal Bahasa Jawa"];
+            let mapelAgamaIslamUmum = ["Pendidikan Agama Islam (PAI) dan Budi Pekerti (3 JP)"];
+            let mapelMadrasahPecahan = ["Al-Qur'an Hadis (2 JP)", "Akidah Akhlak (2 JP)", "Fikih (2 JP)", "Sejarah Kebudayaan Islam / SKI (2 JP)", "Bahasa Arab (3 JP)"];
+
+            // 1. SISTEM DETEKSI SD/MI: IPAS KELAS 1-2 MATI, KELAS 3-6 AKTIF (5 JP)
+            if (kelas.match(/Kelas 1|Kelas 2/)) {
+                if (instansi === "SEKOLAH") {
+                    isiDropdownMapel([...mapelAgamaIslamUmum, ...mapelDasar]);
+                } else {
+                    isiDropdownMapel([...mapelMadrasahPecahan, ...mapelDasar]); // Tanpa SKI untuk MI kelas 1-2
+                }
+            } 
+            else if (kelas.match(/Kelas 3|Kelas 4|Kelas 5|Kelas 6/)) {
+                let mapelSDAtas = ["IPAS (Ilmu Pengetahuan Alam dan Sosial) (5 JP)", ...mapelDasar];
+                if (instansi === "SEKOLAH") {
+                    isiDropdownMapel([...mapelAgamaIslamUmum, ...mapelSDAtas]);
+                } else {
+                    isiDropdownMapel([...mapelMadrasahPecahan, ...mapelSDAtas]);
+                }
             }
-
-            let daftarMapel = [];
-
-            if (kelasSelect.includes("Kelas 1") || kelasSelect.includes("Kelas 2")) {
-                // SD Kelas Bawah (Tanpa IPAS)
-                daftarMapel = ["Bahasa Indonesia", "Matematika", "Bahasa Inggris", "Pendidikan Pancasila", "Muatan Lokal Bahasa Jawa", "Pendidikan Agama Islam (Umum)", "Al-Qur'an Hadis (Madrasah)", "Akidah Akhlak (Madrasah)", "Fikih (Madrasah)", "Bahasa Arab (Madrasah)"];
-            } else if (kelasSelect.includes("Kelas 3") || kelasSelect.includes("Kelas 4") || kelasSelect.includes("Kelas 5") || kelasSelect.includes("Kelas 6")) {
-                // SD Kelas Atas (Ada IPAS otomatis)
-                daftarMapel = ["IPAS (Ilmu Pengetahuan Alam dan Sosial)", "Bahasa Indonesia", "Matematika", "Bahasa Inggris", "Pendidikan Pancasila", "Muatan Lokal Bahasa Jawa", "Pendidikan Agama Islam (Umum)", "Al-Qur'an Hadis (Madrasah)", "Akidah Akhlak (Madrasah)", "Fikih (Madrasah)", "SKI (Madrasah)", "Bahasa Arab (Madrasah)"];
-            } else if (kelasSelect.includes("Kelas 7") || kelasSelect.includes("Kelas 8") || kelasSelect.includes("Kelas 9")) {
-                // SMP / MTs
-                daftarMapel = ["Bahasa Inggris", "Matematika", "IPA (Sains Ilmu Pengetahuan Alam)", "IPS (Ilmu Pengetahuan Sosial)", "Bahasa Indonesia", "Pendidikan Pancasila", "Muatan Lokal Bahasa Jawa", "Pendidikan Agama Islam (Umum)", "Al-Qur'an Hadis (Madrasah)", "Akidah Akhlak (Madrasah)", "Fikih (Madrasah)", "SKI (Madrasah)", "Bahasa Arab (Madrasah)"];
-            } else if (kelasSelect.includes("Kelas 10")) {
-                // SMA Kelas 10 (Pecahan Rumpun Berdiri Sendiri)
-                daftarMapel = ["Bahasa Inggris", "Bahasa Indonesia", "Matematika", "Fisika (Rumpun IPA)", "Kimia (Rumpun IPA)", "Biologi (Rumpun IPA)", "Sejarah (Rumpun IPS)", "Sosiologi (Rumpun IPS)", "Ekonomi (Rumpun IPS)", "Geografi (Rumpun IPS)", "Pendidikan Pancasila", "Muatan Lokal Bahasa Jawa", "Pendidikan Agama Islam (Umum)", "Al-Qur'an Hadis (Madrasah)", "Akidah Akhlak (Madrasah)", "Fikih (Madrasah)", "SKI (Madrasah)", "Bahasa Arab (Madrasah)"];
-            } else {
-                // SMA Kelas 11 & 12 (Fase F)
-                daftarMapel = ["Bahasa Inggris Tingkat Lanjut", "Bahasa Indonesia", "Matematika Tingkat Lanjut", "Fisika Utama", "Kimia Utama", "Biologi Utama", "Sosiologi Utama", "Geografi Utama", "Ekonomi Utama", "Sejarah Dunia/Nasional", "Muatan Lokal Bahasa Jawa", "Pendidikan Agama Islam (Umum)", "Al-Qur'an Hadis (Madrasah)", "Akidah Akhlak (Madrasah)", "Fikih (Madrasah)", "SKI (Madrasah)", "Bahasa Arab (Madrasah)"];
+            // 2. SISTEM DETEKSI SMP/MTS FASE D
+            else if (kelas.match(/Kelas 7|Kelas 8|Kelas 9/)) {
+                let mapelSMP = ["Ilmu Pengetahuan Alam (IPA)", "Ilmu Pengetahuan Sosial (IPS)", "Informatika", ...mapelDasar];
+                if (instansi === "SEKOLAH") {
+                    isiDropdownMapel([...mapelAgamaIslamUmum, ...mapelSMP]);
+                } else {
+                    isiDropdownMapel([...mapelMadrasahPecahan, ...mapelSMP]);
+                }
             }
+            // 3. SISTEM DETEKSI SMA/MA KELAS X: PEMECAHAN RUMPUN IPA & IPS SECARA MANDIRI
+            else if (kelas === "Kelas 10") {
+                let mapelSMA10 = [
+                    "Fisika (Rumpun IPA)", "Kimia (Rumpun IPA)", "Biologi (Rumpun IPA)", 
+                    "Sejarah (Rumpun IPS)", "Sosiologi (Rumpun IPS)", "Ekonomi (Rumpun IPS)", "Geografi (Rumpun IPS)",
+                    "Informatika", ...mapelDasar
+                ];
+                if (instansi === "SEKOLAH") {
+                    isiDropdownMapel([...mapelAgamaIslamUmum, ...mapelSMA10]);
+                } else {
+                    isiDropdownMapel([...mapelMadrasahPecahan, ...mapelSMA10]);
+                }
+            }
+            // 4. SMA/MA KELAS 11-12 FASE F
+            else if (kelas.match(/Kelas 11|Kelas 12/)) {
+                let mapelSMAAtas = ["Fisika Tingkat Lanjut", "Kimia Tingkat Lanjut", "Biologi Tingkat Lanjut", "Sosiologi Tingkat Lanjut", "Geografi Tingkat Lanjut", "Ekonomi Tingkat Lanjut", "Bahasa Inggris Tingkat Lanjut", ...mapelDasar];
+                if (instansi === "SEKOLAH") {
+                    isiDropdownMapel([...mapelAgamaIslamUmum, ...mapelSMAAtas]);
+                } else {
+                    let mapelKeagamaanMA = [...mapelMadrasahPecahan, "Ilmu Tafsir", "Ilmu Hadis", "Usul Fikih", "Tauhid"];
+                    isiDropdownMapel([...mapelKeagamaanMA, ...mapelSMAAtas]);
+                }
+            }
+        }
 
-            // Masukkan ke dalam dropdown
-            daftarMapel.forEach(mapel => {
+        function isiDropdownMapel(arrayMapel) {
+            const mapelSelect = document.getElementById('mapel');
+            arrayMapel.forEach(m => {
                 let opt = document.createElement('option');
-                opt.value = mapel;
-                opt.innerHTML = mapel;
+                opt.value = m.split(" (")[0]; // Ambil nama murni mapel tanpa keterangan JP
+                opt.innerHTML = m;
                 mapelSelect.appendChild(opt);
             });
+        }
+
+        // KONEKSI DROPDOWN KETIGA: MEMANGGIL DAFTAR BAB SIBI SECARA OTOMATIS
+        function koneksiDatabaseSIBI() {
+            const kelas = document.getElementById('kelas').value;
+            const mapel = document.getElementById('mapel').value;
+            const babSelect = document.getElementById('bab');
+            
+            babSelect.innerHTML = "";
+
+            // Cek apakah data tersedia di database internal kita
+            if (databaseSIBI[kelas] && databaseSIBI[kelas][mapel]) {
+                databaseSIBI[kelas][mapel].forEach(b => {
+                    let opt = document.createElement('option');
+                    opt.value = b;
+                    opt.innerHTML = b;
+                    babSelect.appendChild(opt);
+                });
+            } else {
+                // Jika bab mapel belum dimasukkan semua, gunakan draf otomatis agar guru tetap tidak perlu mengetik
+                defaultBab.forEach(b => {
+                    let opt = document.createElement('option');
+                    opt.value = b + ` (${mapel})`;
+                    opt.innerHTML = b + ` (${mapel})`;
+                    babSelect.appendChild(opt);
+                });
+            }
         }
     </script>
     <script src="script.js"></script>
