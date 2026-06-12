@@ -7,7 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        /* Mengatur kerapian cetak dokumen agar bersih dari kode markdown */
         .prose h1 { font-size: 1.5rem; font-weight: bold; margin-top: 1rem; margin-bottom: 0.5rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.25rem; }
         .prose h2 { font-size: 1.25rem; font-weight: bold; margin-top: 1rem; margin-bottom: 0.5rem; }
         .prose h3 { font-size: 1.1rem; font-weight: bold; margin-top: 0.75rem; }
@@ -45,7 +44,7 @@
                 </div>
             </div>
 
-            <h3 class="text-lg font-bold text-gray-700 mb-3 border-l-4 border-pink-500 pl-2">2. Panel Input Generator Utama (Mesin Pintar AI)</h3>
+            <h3 class="text-lg font-bold text-gray-700 mb-3 border-l-4 border-pink-500 pl-2">2. Panel Input Generator Utama</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                     <label class="block text-sm font-semibold mb-1">Langkah 1: Pilih Jenjang & Kelas:</label>
@@ -73,36 +72,33 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-semibold mb-1">Jenis Instansi:</label>
+                    <label class="block text-sm font-semibold mb-1">Jenis Instansi (Penentu Struktur):</label>
                     <select id="instansi" onchange="logikaSistemKurikulum()" class="w-full p-2 border rounded-md focus:outline-pink-500">
-                        <option value="SEKOLAH">SEKOLAH UMUM (SD/SMP/SMA)</option>
-                        <option value="MADRASAH">MADRASAH (MI/MTs/MA) - KMA 1503/2025</option>
+                        <option value="SEKOLAH">SEKOLAH UMUM (SD/SMP/SMA - Permendikbud 12/2024)</option>
+                        <option value="MADRASAH">MADRASAH (MI/MTs/MA - KMA No. 450 Tahun 2024)</option>
                     </select>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-semibold mb-1">Langkah 2: Mata Pelajaran (Otomatis Mengunci):</label>
-                    <select id="mapel" onchange="koneksiDatabaseSIBI()" class="w-full p-2 border rounded-md focus:outline-pink-500">
+                    <label class="block text-sm font-semibold mb-1">Langkah 2: Mata Pelajaran Resmi (Mengunci):</label>
+                    <select id="mapel" onchange="koneksiDatabaseMateri()" class="w-full p-2 border rounded-md focus:outline-pink-500">
                         <option value="">-- Pilih Kelas & Instansi Terlebih Dahulu --</option>
                     </select>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-semibold mb-1">Langkah 3: Bab Resmi SIBI Semester 1 & 2 (Otomatis):</label>
-                    <select id="bab" class="w-full p-2 border rounded-md focus:outline-pink-500">
+                    <label class="block text-sm font-semibold mb-1">Langkah 3: Bab Resmi (SIBI / KEMENAG Otomatis):</label>
+                    <select id="bab" onchange="sinkronisasiPilarKbcOtomatis()" class="w-full p-2 border rounded-md focus:outline-pink-500">
                         <option value="">-- Pilih Mata Pelajaran Terlebih Dahulu --</option>
                     </select>
                 </div>
 
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-semibold mb-1">Langkah 4: Pilar Panca Cinta KBC (SIKURMA):</label>
-                    <select id="pilar" class="w-full p-2 border rounded-md focus:outline-pink-500">
-                        <option value="Hubullah (Cinta Allah & Rasul)">Hubullah (Cinta Allah & Rasul)</option>
-                        <option value="Hubunnafsi (Cinta Diri)">Hubunnafsi (Cinta Diri)</option>
-                        <option value="Hubunnas (Cinta Sesama)">Hubunnas (Cinta Sesama)</option>
-                        <option value="Hubulbi'ah (Cinta Alam)">Hubulbi'ah (Cinta Alam)</option>
-                        <option value="Hubul Wathan (Cinta Tanah Air)">Hubul Wathan (Cinta Tanah Air)</option>
-                    </select>
+                    <label class="block text-sm font-semibold mb-1 text-pink-700">Langkah 4: Pilar Panca Cinta KBC Terkunci (Sistem Cerdas SIKURMA):</label>
+                    <div id="pilarDisplay" class="w-full p-3 bg-pink-50 border border-pink-200 rounded-md font-bold text-pink-700 text-center">
+                        -- Menunggu Sinkronisasi Pilihan Bab --
+                    </div>
+                    <input type="hidden" id="pilar" value="">
                 </div>
             </div>
 
@@ -112,7 +108,7 @@
         </div>
 
         <div id="loading" class="hidden text-center my-8 text-pink-600 font-medium animate-pulse print:hidden">
-            ⏳ Gemini 2.5 Flash sedang memisahkan materi bab menjadi beberapa pertemuan dan menyusun struktur KBC... Mohon tunggu...
+            ⏳ Gemini 2.5 Flash sedang memproses data administrasi, merangkai materi bab, dan mengunci pilar cinta... Mohon tunggu...
         </div>
 
         <div id="outputContainer" class="hidden mt-4 border-t pt-4 print:border-none print:pt-0">
@@ -127,85 +123,80 @@
     </div>
 
     <script>
-        // DATABASE SIBI UTUH SEMESTER 1 DAN SEMESTER 2 KELAS SAMPEL UTAMA
-        const databaseSIBI = {
+        // DATABASE INTELLIGENT ROUTING: SIBI (KEMENDIKBUD) & SIKURMA (KEMENAG) SEMESTER 1 & 2
+        const databaseMateri = {
             "Kelas 4": {
                 "IPAS (Ilmu Pengetahuan Alam dan Sosial)": [
-                    "SEMESTER 1 - Bab 1: Tumbuhan, Sumber Kehidupan di Bumi", 
-                    "SEMESTER 1 - Bab 2: Wujud Zat dan Perubahannya", 
-                    "SEMESTER 1 - Bab 3: Gaya di Sekitar Kita", 
-                    "SEMESTER 1 - Bab 4: Mengubah Bentuk Energi",
-                    "SEMESTER 2 - Bab 5: Cerita Tentang Daerahku",
-                    "SEMESTER 2 - Bab 6: Indonesiaku Kaya Budaya",
-                    "SEMESTER 2 - Bab 7: Bagaimana Mendapatkan Keperluan Kita?",
-                    "SEMESTER 2 - Bab 8: Membangun Masyarakat yang Beradab"
+                    { bab: "SEMESTER 1 - Bab 1: Tumbuhan, Sumber Kehidupan di Bumi", pilar: "Hubulbi'ah (Cinta Alam)" },
+                    { bab: "SEMESTER 1 - Bab 4: Mengubah Bentuk Energi", pilar: "Hubullah (Cinta Tuhan)" },
+                    { bab: "SEMESTER 2 - Bab 6: Indonesiaku Kaya Budaya", pilar: "Hubul Wathan (Cinta Tanah Air)" }
                 ],
                 "Bahasa Inggris": [
-                    "SEMESTER 1 - Unit 1: What Are You Doing?", "SEMESTER 1 - Unit 2: There Are 67 English Books", "SEMESTER 1 - Unit 3: My Living Room is Clean", "SEMESTER 1 - Unit 4: Cici Cooks in The Kitchen", "SEMESTER 1 - Unit 5: Where is My Pencil?",
-                    "SEMESTER 2 - Unit 6: The Stove is in The Kitchen", "SEMESTER 2 - Unit 7: I Can Make Fried Rice", "SEMESTER 2 - Unit 8: Be On Time!", "SEMESTER 2 - Unit 9: I Go to School by Bicycle", "SEMESTER 2 - Unit 10: He Always Cleans His Room"
+                    { bab: "SEMESTER 1 - Unit 1: What Are You Doing?", pilar: "Hubunnafsi (Cinta Diri)" },
+                    { bab: "SEMESTER 2 - Unit 10: He Always Cleans His Room", pilar: "Hubulbi'ah (Cinta Alam)" }
+                ],
+                "Akidah Akhlak": [
+                    { bab: "SEMESTER 1 - Bab 1: Indahnya Asmaul Husna", pilar: "Hubullah (Cinta Tuhan)" },
+                    { bab: "SEMESTER 2 - Bab 4: Menghindari Sifat Munafik", pilar: "Hubunnafsi (Cinta Diri)" }
+                ],
+                "Fikih": [
+                    { bab: "SEMESTER 1 - Bab 1: Khitan Tanda Kesucian", pilar: "Hubunnafsi (Cinta Diri)" },
+                    { bab: "SEMESTER 2 - Bab 3: Shalat Jum'at Berjamaah", pilar: "Hubunnas (Cinta Sesama)" }
                 ]
             },
             "Kelas 10": {
                 "Bahasa Inggris": [
-                    "SEMESTER 1 - Chapter 1: Great Athletes", 
-                    "SEMESTER 1 - Chapter 2: Sports Events", 
-                    "SEMESTER 1 - Chapter 3: Home Holding", 
-                    "SEMESTER 2 - Chapter 4: Healthy Foods", 
-                    "SEMESTER 2 - Chapter 5: Graffiti", 
-                    "SEMESTER 2 - Chapter 6: Fractured Stories"
-                ],
-                "Fisika (Rumpun IPA)": [
-                    "SEMESTER 1 - Bab 1: Pengukuran dalam Kerja Ilmiah", 
-                    "SEMESTER 1 - Bab 2: Virus dan Peranannya", 
-                    "SEMESTER 2 - Bab 3: Kimia Hijau dalam Pembangunan Berkelanjutan", 
-                    "SEMESTER 2 - Bab 4: Hukum Dasar Kimia di Sekitar Kita",
-                    "SEMESTER 2 - Bab 5: Energi Terbarukan",
-                    "SEMESTER 2 - Bab 6: Pemanasan Global: Konsep dan Solusi"
+                    { bab: "SEMESTER 1 - Chapter 1: Great Athletes", pilar: "Hubunnas (Cinta Sesama)" },
+                    { bab: "SEMESTER 1 - Chapter 3: Home Holding", pilar: "Hubunnafsi (Cinta Diri)" },
+                    { bab: "SEMESTER 2 - Chapter 4: Healthy Foods", pilar: "Hubunnafsi (Cinta Diri)" }
                 ],
                 "Kimia (Rumpun IPA)": [
-                    "SEMESTER 1 - Bab 1: Pengukuran dalam Kerja Ilmiah", 
-                    "SEMESTER 1 - Bab 2: Virus dan Peranannya", 
-                    "SEMESTER 2 - Bab 3: Kimia Hijau dalam Pembangunan Berkelanjutan", 
-                    "SEMESTER 2 - Bab 4: Hukum Dasar Kimia di Sekitar Kita",
-                    "SEMESTER 2 - Bab 5: Energi Terbarukan",
-                    "SEMESTER 2 - Bab 6: Pemanasan Global: Konsep dan Solusi"
+                    { bab: "SEMESTER 2 - Bab 3: Kimia Hijau dalam Pembangunan Berkelanjutan", pilar: "Hubulbi'ah (Cinta Alam)" },
+                    { bab: "SEMESTER 2 - Bab 6: Pemanasan Global: Solusi Nyata", pilar: "Hubulbi'ah (Cinta Alam)" }
+                ],
+                "Fisika (Rumpun IPA)": [
+                    { bab: "SEMESTER 1 - Bab 1: Pengukuran dalam Kerja Ilmiah", pilar: "Hubunnafsi (Cinta Diri)" },
+                    { bab: "SEMESTER 2 - Bab 5: Implementasi Energi Terbarukan", pilar: "Hubulbi'ah (Cinta Alam)" }
                 ],
                 "Biologi (Rumpun IPA)": [
-                    "SEMESTER 1 - Bab 1: Pengukuran dalam Kerja Ilmiah", 
-                    "SEMESTER 1 - Bab 2: Virus dan Peranannya", 
-                    "SEMESTER 2 - Bab 3: Kimia Hijau dalam Pembangunan Berkelanjutan", 
-                    "SEMESTER 2 - Bab 4: Hukum Dasar Kimia di Sekitar Kita",
-                    "SEMESTER 2 - Bab 5: Energi Terbarukan",
-                    "SEMESTER 2 - Bab 6: Pemanasan Global: Konsep dan Solusi"
+                    { bab: "SEMESTER 1 - Bab 2: Virus dan Peranannya di Bumi", pilar: "Hubullah (Cinta Tuhan)" },
+                    { bab: "SEMESTER 2 - Bab 4: Ekosistem dan Keanekaragaman Hayati", pilar: "Hubulbi'ah (Cinta Alam)" }
                 ],
                 "Sejarah (Rumpun IPS)": [
-                    "SEMESTER 1 - Bab 1: Pengantar Ilmu Sejarah",
-                    "SEMESTER 2 - Bab 2: Penelitian Sejarah Lokal & Jalur Rempah Nusantara"
+                    { bab: "SEMESTER 1 - Bab 1: Pengantar Ilmu Sejarah", pilar: "Hubunnafsi (Cinta Diri)" },
+                    { bab: "SEMESTER 2 - Bab 2: Penelitian Sejarah Lokal & Jalur Rempah Nusantara", pilar: "Hubul Wathan (Cinta Tanah Air)" }
                 ],
                 "Sosiologi (Rumpun IPS)": [
-                    "SEMESTER 1 - Bab 1: Pengantar Sosiologi & Identitas Diri",
-                    "SEMESTER 2 - Bab 2: Fungsi Sosiologi, Realitas Sosial, dan Tindakan Sosial"
-                ],
-                "Ekonomi (Rumpun IPS)": [
-                    "SEMESTER 1 - Bab 1: Pengantar Ilmu Ekonomi & Kelangkaan",
-                    "SEMESTER 2 - Bab 2: Kegiatan Ekonomi, Pasar, dan Lembaga Keuangan"
-                ],
-                "Geografi (Rumpun IPS)": [
-                    "SEMESTER 1 - Bab 1: Pengantar Ilmu Geografi & Konsep Keruangan",
-                    "SEMESTER 2 - Bab 2: Peta, Penginderaan Jauh, GIS, dan Biosfer"
+                    { bab: "SEMESTER 1 - Bab 1: Pengantar Sosiologi & Identitas Diri", pilar: "Hubunnafsi (Cinta Diri)" },
+                    { bab: "SEMESTER 2 - Bab 2: Realitas Sosial dan Tindakan Masyarakat", pilar: "Hubunnas (Cinta Sesama)" }
                 ],
                 "Akidah Akhlak": [
-                    "SEMESTER 1 - Bab 1: Aqidah Islam dan Metode Peningkatannya", "SEMESTER 1 - Bab 2: Sifat-Sifat Allah (Asmaul Husna)", "SEMESTER 1 - Bab 3: Menghindari Akhlak Tercela (Lust & Greed)",
-                    "SEMESTER 2 - Bab 4: Indahnya Berakhlak Terpuji", "SEMESTER 2 - Bab 5: Keteladanan Rasulullah dalam Membangun Masyarakat"
+                    { bab: "SEMESTER 1 - Bab 2: Sifat-Sifat Allah melalui Asmaul Husna", pilar: "Hubullah (Cinta Tuhan)" },
+                    { bab: "SEMESTER 1 - Bab 3: Menghindari Akhlak Tercela Licik dan Tamak", pilar: "Hubunnafsi (Cinta Diri)" },
+                    { bab: "SEMESTER 2 - Bab 5: Keteladanan Rasulullah dalam Membangun Masyarakat Madani", pilar: "Hubul Wathan (Cinta Tanah Air)" }
+                ],
+                "Al-Qur'an Hadis": [
+                    { bab: "SEMESTER 1 - Bab 1: Keotentikan Al-Qur'an Diturunkan Allah", pilar: "Hubullah (Cinta Tuhan)" },
+                    { bab: "SEMESTER 2 - Bab 3: Hadis tentang Menjaga Kelestarian Lingkungan", pilar: "Hubulbi'ah (Cinta Alam)" }
+                ],
+                "Fikih": [
+                    { bab: "SEMESTER 1 - Bab 2: Konsep Fikih Ibadah Pembentuk Karakter", pilar: "Hubullah (Cinta Tuhan)" },
+                    { bab: "SEMESTER 2 - Bab 4: Hukum Kepemilikan (Milkiyyah) dalam Islam", pilar: "Hubunnas (Cinta Sesama)" }
+                ],
+                "Sejarah Kebudayaan Islam / SKI": [
+                    { bab: "SEMESTER 1 - Bab 1: Dakwah Rasulullah Periode Makkah", pilar: "Hubullah (Cinta Tuhan)" },
+                    { bab: "SEMESTER 2 - Bab 3: Strategi Piagam Madinah Mempersatukan Bangsa", pilar: "Hubul Wathan (Cinta Tanah Air)" }
+                ],
+                "Bahasa Arab": [
+                    { bab: "SEMESTER 1 - Bab 1: At-Tahiyyah wat Ta'aruf (Sapaan dan Kenalan)", pilar: "Hubunnas (Cinta Sesama)" },
+                    { bab: "SEMESTER 2 - Bab 4: Al-Hayatu fil Usrah (Kehidupan Keluarga)", pilar: "Hubunnas (Cinta Sesama)" }
                 ]
             }
         };
 
-        const defaultBab = [
-            "SEMESTER 1 - Bab 1: Pendalaman Konsep Materi Esensial Awal", 
-            "SEMESTER 1 - Bab 2: Pengembangan Kompetensi Intrakurikuler", 
-            "SEMESTER 2 - Bab 3: Aplikasi Teori dan Proyek Lapangan Bermakna", 
-            "SEMESTER 2 - Bab 4: Evaluasi Akhir dan Refleksi Karakter"
+        const defaultMateri = [
+            { bab: "SEMESTER 1 - Bab 1: Pendalaman Konsep Esensial", pilar: "Hubunnafsi (Cinta Diri)" },
+            { bab: "SEMESTER 2 - Bab 2: Aplikasi Teori Bermakna dan Kontekstual", pilar: "Hubul Wathan (Cinta Tanah Air)" }
         ];
 
         function logikaSistemKurikulum() {
@@ -215,40 +206,57 @@
             
             mapelSelect.innerHTML = '<option value="">-- Pilih Mata Pelajaran --</option>';
             document.getElementById('bab').innerHTML = '<option value="">-- Pilih Mata Pelajaran Terlebih Dahulu --</option>';
+            resetPilarDisplay();
 
             if (!kelas) return;
 
-            let mapelDasar = ["Pendidikan Pancasila", "Bahasa Indonesia", "Matematika", "Bahasa Inggris", "Muatan Lokal Bahasa Jawa"];
-            let mapelAgamaIslamUmum = ["Pendidikan Agama Islam (PAI) dan Budi Pekerti (3 JP)"];
-            let mapelMadrasahPecahan = ["Al-Qur'an Hadis (2 JP)", "Akidah Akhlak (2 JP)", "Fikih (2 JP)", "Sejarah Kebudayaan Islam / SKI (2 JP)", "Bahasa Arab (3 JP)"];
+            // STRUKTUR KMA NOMOR 450 TAHUN 2024 & PERMENDIKBUD 12/2024
+            let mapelDasarUmum = ["Bahasa Indonesia", "Matematika", "Bahasa Inggris", "Pendidikan Jasmani Olahraga dan Kesehatan (PJOK)", "Seni Rupa", "Seni Musik", "Seni Teater", "Seni Tari", "Muatan Lokal Bahasa Jawa"];
+            let rumpunPaiKemenag = ["Al-Qur'an Hadis", "Akidah Akhlak", "Fikih", "Sejarah Kebudayaan Islam / SKI", "Bahasa Arab"];
 
             if (kelas.match(/Kelas 1|Kelas 2/)) {
-                if (instansi === "SEKOLAH") { isiDropdownMapel([...mapelAgamaIslamUmum, ...mapelDasar]); } 
-                else { isiDropdownMapel([...mapelMadrasahPecahan, ...mapelDasar]); }
+                if (instansi === "SEKOLAH") {
+                    isiDropdownMapel(["Pendidikan Agama Islam (PAI) dan Budi Pekerti", "Pendidikan Pancasila", ...mapelDasarUmum]);
+                } else {
+                    // MI Kelas 1-2 sesuai KMA 450: SKI belum diajarkan
+                    let paiMI = ["Al-Qur'an Hadis", "Akidah Akhlak", "Fikih", "Bahasa Arab"];
+                    isiDropdownMapel([...paiMI, "Pendidikan Pancasila", ...mapelDasarUmum]);
+                }
             } 
             else if (kelas.match(/Kelas 3|Kelas 4|Kelas 5|Kelas 6/)) {
-                let mapelSDAtas = ["IPAS (Ilmu Pengetahuan Alam dan Sosial) (5 JP)", ...mapelDasar];
-                if (instansi === "SEKOLAH") { isiDropdownMapel([...mapelAgamaIslamUmum, ...mapelSDAtas]); } 
-                else { isiDropdownMapel([...mapelMadrasahPecahan, ...mapelSDAtas]); }
+                // Aturan Usia IPAS: Otomatis Aktif di Kelas 3-6 (5 JP)
+                if (instansi === "SEKOLAH") {
+                    isiDropdownMapel(["Pendidikan Agama Islam (PAI) dan Budi Pekerti", "Pendidikan Pancasila", "IPAS (Ilmu Pengetahuan Alam dan Sosial)", ...mapelDasarUmum]);
+                } else {
+                    isiDropdownMapel([...rumpunPaiKemenag, "Pendidikan Pancasila", "IPAS (Ilmu Pengetahuan Alam dan Sosial)", ...mapelDasarUmum]);
+                }
             }
             else if (kelas.match(/Kelas 7|Kelas 8|Kelas 9/)) {
-                let mapelSMP = ["Ilmu Pengetahuan Alam (IPA)", "Ilmu Pengetahuan Sosial (IPS)", "Informatika", ...mapelDasar];
-                if (instansi === "SEKOLAH") { isiDropdownMapel([...mapelAgamaIslamUmum, ...mapelSMP]); } 
-                else { isiDropdownMapel([...mapelMadrasahPecahan, ...mapelSMP]); }
+                // MTs/SMP Fase D (Ada Informatika)
+                if (instansi === "SEKOLAH") {
+                    isiDropdownMapel(["Pendidikan Agama Islam (PAI) dan Budi Pekerti", "Pendidikan Pancasila", "Ilmu Pengetahuan Alam (IPA)", "Ilmu Pengetahuan Sosial (IPS)", "Informatika", ...mapelDasarUmum]);
+                } else {
+                    isiDropdownMapel([...rumpunPaiKemenag, "Pendidikan Pancasila", "Ilmu Pengetahuan Alam (IPA)", "Ilmu Pengetahuan Sosial (IPS)", "Informatika", ...mapelDasarUmum]);
+                }
             }
             else if (kelas === "Kelas 10") {
-                let mapelSMA10 = [
-                    "Fisika (Rumpun IPA)", "Kimia (Rumpun IPA)", "Biologi (Rumpun IPA)", 
-                    "Sejarah (Rumpun IPS)", "Sosiologi (Rumpun IPS)", "Ekonomi (Rumpun IPS)", "Geografi (Rumpun IPS)",
-                    "Informatika", ...mapelDasar
-                ];
-                if (instansi === "SEKOLAH") { isiDropdownMapel([...mapelAgamaIslamUmum, ...mapelSMA10]); } 
-                else { isiDropdownMapel([...mapelMadrasahPecahan, ...mapelSMA10]); }
+                // SMA/MA Kelas X Fase E: Rumpun IPA & IPS Dipecah Mandiri Berdiri Sendiri
+                let mapelPecahanSMA10 = ["Fisika (Rumpun IPA)", "Kimia (Rumpun IPA)", "Biologi (Rumpun IPA)", "Sejarah (Rumpun IPS)", "Sosiologi (Rumpun IPS)", "Ekonomi (Rumpun IPS)", "Geografi (Rumpun IPS)", "Informatika", "Pendidikan Pancasila", ...mapelDasarUmum];
+                if (instansi === "SEKOLAH") {
+                    isiDropdownMapel(["Pendidikan Agama Islam (PAI) dan Budi Pekerti", ...mapelPecahanSMA10]);
+                } else {
+                    isiDropdownMapel([...rumpunPaiKemenag, ...mapelPecahanSMA10]);
+                }
             }
             else if (kelas.match(/Kelas 11|Kelas 12/)) {
-                let mapelSMAAtas = ["Fisika Tingkat Lanjut", "Kimia Tingkat Lanjut", "Biologi Tingkat Lanjut", "Sosiologi Tingkat Lanjut", "Geografi Tingkat Lanjut", "Ekonomi Tingkat Lanjut", "Bahasa Inggris Tingkat Lanjut", ...mapelDasar];
-                if (instansi === "SEKOLAH") { isiDropdownMapel([...mapelAgamaIslamUmum, ...mapelSMAAtas]); } 
-                else { isiDropdownMapel([...mapelMadrasahPecahan, "Ilmu Tafsir", "Ilmu Hadis", "Usul Fikih", "Tauhid", ...mapelSMAAtas]); }
+                // Fase F: Pendalaman Pilihan Tingkat Lanjut & Mapel Keagamaan MA (KMA 450/2024)
+                let mapelLanjut = ["Fisika Tingkat Lanjut", "Kimia Tingkat Lanjut", "Biologi Tingkat Lanjut", "Sosiologi Tingkat Lanjut", "Geografi Tingkat Lanjut", "Ekonomi Tingkat Lanjut", "Bahasa Inggris Tingkat Lanjut", "Pendidikan Pancasila", ...mapelDasarUmum];
+                if (instansi === "SEKOLAH") {
+                    isiDropdownMapel(["Pendidikan Agama Islam (PAI) dan Budi Pekerti", "Sejarah", ...mapelLanjut]);
+                } else {
+                    let mapelAgamaLanjutMA = ["Al-Qur'an Hadis", "Akidah Akhlak", "Fikih", "Sejarah Kebudayaan Islam / SKI", "Bahasa Arab", "Ilmu Tafsir", "Ilmu Hadis", "Usul Fikih", "Tauhid"];
+                    isiDropdownMapel([...mapelAgamaLanjutMA, "Sejarah", ...mapelLanjut]);
+                }
             }
         }
 
@@ -262,27 +270,43 @@
             });
         }
 
-        function koneksiDatabaseSIBI() {
+        function koneksiDatabaseMateri() {
             const kelas = document.getElementById('kelas').value;
             const mapel = document.getElementById('mapel').value;
             const babSelect = document.getElementById('bab');
-            babSelect.innerHTML = "";
+            
+            babSelect.innerHTML = '<option value="">-- Pilih Bab --</option>';
+            resetPilarDisplay();
 
-            if (databaseSIBI[kelas] && databaseSIBI[kelas][mapel]) {
-                databaseSIBI[kelas][mapel].forEach(b => {
-                    let opt = document.createElement('option');
-                    opt.value = b;
-                    opt.innerHTML = b;
-                    babSelect.appendChild(opt);
-                });
+            let dataBab = (databaseMateri[kelas] && databaseMateri[kelas][mapel]) ? databaseMateri[kelas][mapel] : defaultMateri;
+
+            dataBab.forEach(item => {
+                let opt = document.createElement('option');
+                opt.value = item.bab;
+                opt.innerHTML = item.bab;
+                // Simpan metadata pilar di atribut HTML agar bisa ditarik otomatis
+                opt.setAttribute('data-pilar', item.pilar);
+                babSelect.appendChild(opt);
+            });
+        }
+
+        // FUNGSI SINKRONISASI CERDAS: KUNCI PILAR SECARA OTOMATIS TANPA KLIK MANUAL
+        function sinkronisasiPilarKbcOtomatis() {
+            const babSelect = document.getElementById('bab');
+            const selectedOption = babSelect.options[babSelect.selectedIndex];
+            const pilarValue = selectedOption.getAttribute('data-pilar');
+
+            if (pilarValue) {
+                document.getElementById('pilarDisplay').innerHTML = `🔒 TERKUNCI OTOMATIS: ${pilarValue}`;
+                document.getElementById('pilar').value = pilarValue;
             } else {
-                defaultBab.forEach(b => {
-                    let opt = document.createElement('option');
-                    opt.value = b + ` (${mapel})`;
-                    opt.innerHTML = b + ` (${mapel})`;
-                    babSelect.appendChild(opt);
-                });
+                resetPilarDisplay();
             }
+        }
+
+        function resetPilarDisplay() {
+            document.getElementById('pilarDisplay').innerHTML = `-- Menunggu Sinkronisasi Pilihan Bab --`;
+            document.getElementById('pilar').value = "";
         }
     </script>
     <script src="script.js"></script>
