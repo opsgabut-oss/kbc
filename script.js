@@ -10,38 +10,44 @@ async function generateModul() {
     const pilar = document.getElementById('pilar').value;
 
     if (!namaGuru || !namaSekolah || !namaKepsek || !tahunAjaran || !bab) {
-        alert("Mohon lengkapi seluruh data identitas administrasi dan materi bab terlebih dahulu!");
+        alert("Mohon isi seluruh data identitas administrasi guru terlebih dahulu!");
         return;
     }
 
     document.getElementById('loading').classList.remove('hidden');
     document.getElementById('outputContainer').classList.add('hidden');
 
-    const systemPrompt = `Anda adalah KBC Modul Generator AI. Buatkan satu dokumen Modul Ajar Kurikulum Merdeka utuh yang mengintegrasikan nilai Kurikulum Berbasis Cinta (KBC) Kemenag.
+    const systemPrompt = `Anda adalah KBC Modul Generator AI. Buatkan dokumen Modul Ajar Kurikulum Merdeka resmi yang mengintegrasikan nilai Kurikulum Berbasis Cinta (KBC) Kemenag secara otomatis.
 
-Struktur Dokumen Wajib:
-1. KOP IDENTITAS ADMINISTRASI (Paling Atas):
-   - MODUL AJAR KURIKULUM MERDEKA BERBASIS CINTA (KBC)
-   - Nama Madrasah/Sekolah: ${namaSekolah}
-   - Mata Pelajaran: ${mapel}
-   - Kelas / Jenjang: ${kelas}
-   - Tahun Ajaran: ${tahunAjaran}
-   - Guru Pengampu: ${namaGuru}
+Struktur Dokumen Wajib Tanpa Kode Markdown Mentah:
+1. KOP IDENTITAS ADMINISTRASI (Tulis bersih di bagian paling atas):
+   # MODUL AJAR KURIKULUM MERDEKA BERBASIS CINTA (KBC)
+   * Nama Madrasah/Sekolah: ${namaSekolah}
+   * Mata Pelajaran: ${mapel}
+   * Kelas / Jenjang: ${kelas}
+   * Tahun Ajaran: ${tahunAjaran}
+   * Guru Pengampu: ${namaGuru}
 
 2. LOGIKA PEMECAHAN PERTEMUAN:
-   Analisis bab ini: "${bab}". Pecah bab tersebut menjadi beberapa pertemuan secara berurutan (Pertemuan 1, Pertemuan 2, dst).
+   Analisis materi ini: "${bab}". Pecah materi tersebut secara logis menjadi seluruh rangkaian pertemuan pembelajaran (Pertemuan 1, Pertemuan 2, dan seterusnya sampai bab selesai). Tuliskan rincian lengkap untuk SETIAP pertemuan secara berturut-turut dalam satu dokumen ini.
 
-3. DETAIL SETIAP PERTEMUAN:
-   - KOTAK MATERI ESENSIAL: Berikan isi ringkasan materi/rumus nyata dari buku SIBI.
-   - SINTAKS 3M (Berkesadaran, Bermakna, Menggembirakan): Alokasi menit detail (Pembukaan 15m, Inti 60m, Penutup 15m). Sesuai psikologi usia anak (${kelas}).
-   - NASKAH DIALOG HATI: Tuliskan transkrip kalimat verbal nyata berupa kutipan langsung ("...") yang harus diucapkan guru ${namaGuru} di kelas untuk menyentuh emosi siswa berdasarkan pilar ${pilar}.
-   - DIARI CINTA SISWA: Draf isian refleksi mandiri siswa.
+3. STRUKTUR DETAIL PER PERTEMUAN:
+   - ## PERTEMUAN X
+   - ### I. KOTAK MATERI ESENSIAL
+     Tuliskan isi rangkuman materi nyata, kosakata kunci, rumus kebahasaan, atau teori ilmiah riil berdasarkan bab SIBI tersebut.
+   - ### II. SINTAKS 3M (Berkesadaran, Bermakna, Menggembirakan)
+     Jabarkan rincian aktivitas menit (Pembukaan 15 menit, Kegiatan Inti 60 menit, Penutup 15 menit). Gaya penyampaian wajib disesuaikan dengan psikologi usia murid kelas ${kelas}.
+   - ### III. NASKAH VERBAL DIALOG HATI
+     Tuliskan naskah pidato pendek/kalimat verbal konkret di dalam tanda kutip ("...") yang wajib diucapkan langsung oleh guru ${namaGuru} untuk menyentuh batin siswa berdasarkan pilar panca cinta ${pilar}. Jangan ditulis dalam bentuk kalimat perintah abstrak.
+   - ### IV. JURNAL DIARI CINTA
+     Sediakan draf kolom refleksi cinta untuk diisi oleh siswa.
 
-4. LEMBAR PENGESAHAN (Paling Bawah Dokumen):
-   Tuliskan format tanda tangan Mengetahui, Kepala Sekolah: ${namaKepsek} di sebelah kiri, dan Guru Mata Pelajaran: ${namaGuru} di sebelah kanan.`;
+4. LEMBAR PENGESAHAN LEGALITAS (Tulis bersih di akhir dokumen setelah seluruh pertemuan selesai):
+   Mengetahui,
+   Kepala Sekolah: ${namaKepsek} (Sisi Kiri)
+   Guru Mata Pelajaran: ${namaGuru} (Sisi Kanan)`;
 
     try {
-        // MEMANGGIL JALUR BELAKANG VERCEL (ANTI-CORS / ANTI-ERROR)
         const response = await fetch('/api/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -51,14 +57,15 @@ Struktur Dokumen Wajib:
         const data = await response.json();
         
         if (data.text) {
-            document.getElementById('result').innerText = data.text;
+            // PERBAIKAN UTAMA: Menggunakan marked.parse() agar tanda bintang (* *) diubah menjadi HTML cetak tebal tebal yang rapi
+            document.getElementById('result').innerHTML = marked.parse(data.text);
             document.getElementById('outputContainer').classList.remove('hidden');
         } else {
-            alert("Gagal memproses: " + (data.error || "Periksa kembali Environment Variable di Vercel."));
+            alert("Gagal memproses dokumen AI: " + (data.error || "Periksa konfigurasi brankas Key di Vercel."));
         }
     } catch (error) {
         console.error(error);
-        alert("Terjadi gangguan koneksi sistem.");
+        alert("Terjadi gangguan koneksi jaringan sistem.");
     } finally {
         document.getElementById('loading').classList.add('hidden');
     }
