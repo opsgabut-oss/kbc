@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KBC Modul Generator AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans print:bg-white print:p-0">
+
+    <div class="max-w-4xl mx-auto my-10 p-8 bg-white rounded-xl shadow-lg print:shadow-none print:my-0 print:p-0">
+        <!-- Header Aplikasi (Disembunyikan saat dicetak) -->
+        <div class="text-center border-b pb-4 mb-6 print:hidden">
+            <h1 class="text-3xl font-bold text-pink-600">💖 KBC Modul Generator AI</h1>
+            <p class="text-gray-500 mt-1">Pembuat Modul Ajar Kurikulum Merdeka Otomatis Berbasis Cinta (Kelas 1-12)</p>
+        </div>
+
+        <!-- FORM INPUT ADMINISTRASI & KURIKULUM (Disembunyikan saat dicetak) -->
+        <div class="print:hidden">
+            <h3 class="text-lg font-bold text-gray-700 mb-3 border-l-4 border-pink-500 pl-2">1. Identitas Administrasi Guru</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-semibold mb-1">Nama Guru Pengampu:</label>
+                    <input type="text" id="namaGuru" placeholder="Contoh: Ahmad Fauzi, S.Pd." class="w-full p-2 border rounded-md focus:outline-pink-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1">Nama Madrasah / Sekolah:</label>
+                    <input type="text" id="namaSekolah" placeholder="Contoh: MAN 1 Kota Yogyakarta" class="w-full p-2 border rounded-md focus:outline-pink-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1">Nama Kepala Sekolah / Madrasah:</label>
+                    <input type="text" id="namaKepsek" placeholder="Contoh: Dr. H. Supriyadi, M.Pd." class="w-full p-2 border rounded-md focus:outline-pink-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1">Tahun Ajaran:</label>
+                    <input type="text" id="tahunAjaran" placeholder="Contoh: 2026/2027" class="w-full p-2 border rounded-md focus:outline-pink-500">
+                </div>
+            </div>
+
+            <h3 class="text-lg font-bold text-gray-700 mb-3 border-l-4 border-pink-500 pl-2">2. Pengaturan Materi Kurikulum</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-semibold mb-1">Jenjang & Kelas:</label>
+                    <select id="kelas" class="w-full p-2 border rounded-md focus:outline-pink-500">
+                        <option value="Kelas 1 (Fase A)">Kelas 1 SD/MI (Fase A)</option>
+                        <option value="Kelas 4 (Fase B)">Kelas 4 SD/MI (Fase B)</option>
+                        <option value="Kelas 7 (Fase D)">Kelas 7 SMP/MTs (Fase D)</option>
+                        <option value="Kelas 10 (Fase E)">Kelas 10 SMA/MA (Fase E)</option>
+                        <option value="Kelas 12 (Fase F)">Kelas 12 SMA/MA (Fase F)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold mb-1">Mata Pelajaran:</label>
+                    <select id="mapel" class="w-full p-2 border rounded-md focus:outline-pink-500">
+                        <option value="Bahasa Inggris">Bahasa Inggris</option>
+                        <option value="IPAS">IPAS (SD/MI Kelas 3-6)</option>
+                        <option value="Fisika (Rumpun IPA)">Fisika (Rumpun IPA Kelas 10)</option>
+                        <option value="Biologi (Rumpun IPA)">Biologi (Rumpun IPA Kelas 10)</option>
+                        <option value="Sosiologi (Rumpun IPS)">Sosiologi (Rumpun IPS Kelas 10)</option>
+                        <option value="Muatan Lokal Bahasa Jawa">Muatan Lokal Bahasa Jawa</option>
+                        <option value="Al-Qur'an Hadis (Madrasah)">Al-Qur'an Hadis (Madrasah)</option>
+                        <option value="Akidah Akhlak (Madrasah)">Akidah Akhlak (Madrasah)</option>
+                    </select>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold mb-1">Topik / Bab Buku SIBI (AI akan memecah bab ini menjadi beberapa pertemuan):</label>
+                    <input type="text" id="bab" placeholder="Contoh: Chapter 1 Great Athletes ATAU Bab Kimia Hijau" class="w-full p-2 border rounded-md focus:outline-pink-500">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold mb-1">Dominasi Pilar Panca Cinta KBC:</label>
+                    <select id="pilar" class="w-full p-2 border rounded-md focus:outline-pink-500">
+                        <option value="Hubullah (Cinta Tuhan)">Hubullah (Cinta Tuhan & Rasul)</option>
+                        <option value="Hubunnafsi (Cinta Diri)">Hubunnafsi (Cinta Diri Sendiri)</option>
+                        <option value="Hubunnas (Cinta Sesama)">Hubunnas (Cinta Sesama Manusia)</option>
+                        <option value="Hubulbi'ah (Cinta Alam)">Hubulbi'ah (Cinta Alam Sekitar)</option>
+                        <option value="Hubul Wathan (Cinta Tanah Air)">Hubul Wathan (Cinta Tanah Air & Budaya)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="generateModul()" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-lg transition duration-200 shadow mb-6">
+                💖 Jalankan Generator Modul Ajar KBC
+            </button>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loading" class="hidden text-center my-8 text-pink-600 font-medium animate-pulse print:hidden">
+            ⏳ Sedang memproses dan memecah pertemuan bab dengan Gemini 2.5 Flash... Mohon tunggu...
+        </div>
+
+        <!-- OUTPUT SIAP CETAK -->
+        <div id="outputContainer" class="hidden mt-4 border-t pt-4 print:border-none print:pt-0">
+            <div class="flex justify-between items-center mb-6 print:hidden">
+                <h2 class="text-xl font-bold text-gray-700">📄 Hasil Cetak Modul Ajar KBC:</h2>
+                <button onclick="window.print()" class="bg-gray-800 hover:bg-gray-900 text-white px-5 py-2 rounded-md text-sm font-semibold shadow">
+                    🖨️ Cetak / Simpan ke PDF Resmi
+                </button>
+            </div>
+            <div id="result" class="p-6 bg-gray-50 border rounded-lg whitespace-pre-line leading-relaxed text-sm font-mono text-left print:bg-white print:border-none print:p-0"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
